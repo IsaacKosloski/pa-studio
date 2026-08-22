@@ -1,0 +1,31 @@
+version = 1
+revision = 3
+requires-python = ">=3.13"
+
+[manifest]
+members = [
+    "characterization",
+    "core",
+    "pa-studio",
+]
+
+[[package]]
+name = "characterization"
+version = "0.1.0"
+source = { editable = "characterization" }
+dependencies = [
+    { name = "core" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "core", editable = "core" }]
+
+[[package]]
+name = "core"
+version = "0.1.0"
+source = { editable = "core" }
+
+[[package]]
+name = "pa-studio"
+version = "0.1.0"
+source = { virtual = "." }
