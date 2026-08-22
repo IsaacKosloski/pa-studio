@@ -1,0 +1,11 @@
+[project]
+name = "pa-studio"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = []
+
+[tool.uv.workspace]
+members = [
+    "core",
+    "characterization",
+]
