@@ -9,3 +9,33 @@ members = [
     "core",
     "characterization",
 ]
+
+[dependency-groups]
+dev = [
+    "mypy>=2.3.1",
+    "pre-commit>=4.6.2",
+    "pytest>=9.1.1",
+    "ruff>=0.16.6",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+# E, F = erros de sintaxe/estilo + pyflakes (o essencial, imports/vars não usados)
+# I    = isort (ordena imports automaticamente)
+# UP   = pyupgrade (moderniza sintaxe para a sua versão de Python)
+# B    = flake8-bugbear (armadilhas comuns que viram bug)
+# SIM  = flake8-simplify (sugere simplificações)
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+files = ["core/tests", "characterization/tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["core/tests", "characterization/tests"]
+addopts = "--import-mode=importlib"
+consider_namespace_packages = true
