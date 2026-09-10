@@ -4,7 +4,8 @@ repos:
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
-      - id: check-added-large-files   # teria barrado os .so de 24 MB do repo antigo
+      - id: check-added-large-files
+        args: ["--enforce-all"] # checa todos, mas não barra o que for LFS
       - id: check-toml
       - id: check-yaml
       - id: check-merge-conflict
