@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Self
 
 import numpy as np
 
@@ -7,7 +8,7 @@ class Model(ABC):
     """PA behavioral model interface: learn x -> y and predict y given x."""
 
     @abstractmethod
-    def fit(self, x: np.ndarray, y: np.ndarray) -> "Model":
+    def fit(self, x: np.ndarray, y: np.ndarray) -> Self:
         """Estimate coefficients from input x and measured output y.
         Store them on the instance and return self."""
 

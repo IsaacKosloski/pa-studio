@@ -123,10 +123,14 @@ version = "0.1.0"
 source = { editable = "characterization" }
 dependencies = [
     { name = "core" },
+    { name = "numpy" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "core", editable = "core" }]
+requires-dist = [
+    { name = "core", editable = "core" },
+    { name = "numpy", specifier = ">=2.5.3" },
+]
 
 [[package]]
 name = "charset-normalizer"
