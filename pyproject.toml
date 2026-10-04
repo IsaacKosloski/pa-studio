@@ -40,3 +40,4 @@ files = ["core/src", "characterization/src"]
 testpaths = ["core/tests", "characterization/tests"]
 addopts = "--import-mode=importlib"
 consider_namespace_packages = true
+pythonpath = ["core/src", "characterization/src"]
