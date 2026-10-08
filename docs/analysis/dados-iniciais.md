@@ -15,7 +15,8 @@ uv run --group experiments python experiments/signal_analysis.py
 - The data are **clean and aligned**: no missing values, negligible DC,
   zero input/output delay.
 - The input **repeats every 2688 samples** (18 periods in the file).
-- The PA is **mildly nonlinear**: 0.43 dB of gain variation, 11° of AM/PM,
+- The PA is **mildly nonlinear**: 0.3 dB of gain compression at the peak,
+  11° of AM/PM,
   intermodulation products up to the seventh order, and spectral regrowth
   outside the input band. Third-order intermodulation is at
   −27 dBc, fifth order at −33 dBc and seventh order at −44 dBc.
@@ -97,14 +98,18 @@ Main input tones at 0.01674 and 0.02418 cycles/sample (spacing 0.00744).
 
 | Item | Value |
 |---|---|
-| Small-signal gain | 27.50 dB |
-| Maximum gain (near \|x\| ≈ 0.5) | 27.65 dB |
-| Minimum gain (near \|x\| ≈ 1.0) | 27.22 dB |
-| Gain variation over the input range | 0.43 dB |
+| Small-signal gain (median over 10–40 % of max \|x\|) | 27.56 dB |
+| Gain expansion (maximum above small-signal gain) | +0.09 dB |
+| Gain compression at the peak | 0.30 dB |
 | AM/PM span | 11.2° |
+| AM/PM at the peak, relative to small signal | −10.5° |
 
-The gain first **expands** (+0.15 dB) and then **compresses** (−0.28 dB
-relative to small signal). The phase shift is almost flat near 9–10° up to
+Bins below 10 % of the maximum input amplitude (shaded in the figure) are
+excluded from these numbers: there the noise dominates |y| and biases the
+binned gain upward.
+
+The gain first **expands** slightly (+0.09 dB) and then **compresses**
+(0.30 dB at the peak). The phase shift is almost flat near 9–10° up to
 |x| ≈ 0.4 and then falls to about −1.5° near |x| ≈ 1.0: the AM/PM
 distortion (11°) is more significant than the AM/AM distortion. The
 scatter at very low amplitude is noise (low signal-to-noise ratio). The
