@@ -17,6 +17,10 @@ dev = [
     "pre-commit>=4.6.2",
     "pytest>=9.1.1",
     "ruff>=0.16.6",
+    "scipy-stubs>=1.18.1.1",
+]
+experiments = [
+    "matplotlib>=3.11.2",
 ]
 
 [tool.ruff]
@@ -41,3 +45,7 @@ testpaths = ["core/tests", "characterization/tests"]
 addopts = "--import-mode=importlib"
 consider_namespace_packages = true
 pythonpath = ["core/src", "characterization/src"]
+
+[[tool.mypy.overrides]]
+module = ["statsmodels.*"]
+ignore_missing_imports = true
