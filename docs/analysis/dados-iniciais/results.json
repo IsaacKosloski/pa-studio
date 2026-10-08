@@ -1,0 +1,74 @@
+{
+  "dataset": "characterization/data/dadosIniciais.csv",
+  "fs": null,
+  "n_samples": 48384,
+  "has_nan": false,
+  "dc_x_rel_rms": 0.00015616095066568045,
+  "dc_y_rel_rms": 0.0001614249578412262,
+  "delay_samples": 0,
+  "period": 2688,
+  "period_error": 0.0687339705089827,
+  "n_repetitions": 18,
+  "papr_x_db": 3.3755883091949777,
+  "papr_y_db": 3.3568279163197356,
+  "obw_0.99_x": {
+    "low": 0.015625,
+    "high": 0.025390625,
+    "bandwidth": 0.009765625
+  },
+  "obw_0.99_y": {
+    "low": 0.015625,
+    "high": 0.025390625,
+    "bandwidth": 0.009765625
+  },
+  "obw_0.999_x": {
+    "low": 0.015625,
+    "high": 0.025390625,
+    "bandwidth": 0.009765625
+  },
+  "obw_0.999_y": {
+    "low": 0.001953125,
+    "high": 0.0322265625,
+    "bandwidth": 0.0302734375
+  },
+  "main_tones": [
+    0.016741071428571428,
+    0.024181547619047616
+  ],
+  "small_signal_gain_db": 27.499771965431805,
+  "gain_max_db": 27.653645349292624,
+  "gain_min_db": 27.219260577620897,
+  "gain_variation_db": 0.43438477167172707,
+  "am_pm_span_deg": 11.178984962288304,
+  "linear_gain_nmse_db": -25.774516661922885,
+  "stationarity": {
+    "x_real": {
+      "adf_pvalue": 8.157181436371695e-28,
+      "kpss_pvalue": 0.1
+    },
+    "x_imag": {
+      "adf_pvalue": 5.009558122721366e-28,
+      "kpss_pvalue": 0.1
+    },
+    "x_abs": {
+      "adf_pvalue": 0.0,
+      "kpss_pvalue": 0.1
+    },
+    "r_real": {
+      "adf_pvalue": 0.0,
+      "kpss_pvalue": 0.1
+    }
+  },
+  "ljung_box_r_real": {
+    "5": 0.0,
+    "10": 0.0,
+    "20": 0.0
+  },
+  "acf_r_real_lag1_to_5": [
+    0.9873023498247199,
+    0.9520768491150149,
+    0.8955323194146018,
+    0.8199124416427994,
+    0.7290424279994256
+  ]
+}
