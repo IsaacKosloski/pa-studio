@@ -2,7 +2,9 @@
 name = "pa-studio"
 version = "0.1.0"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "matplotlib>=3.11.2",
+]
 
 [tool.uv.workspace]
 members = [

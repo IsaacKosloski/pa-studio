@@ -4,17 +4,25 @@ Runs every function of core.analysis on a measured PA input/output pair and
 writes figures plus a results.json to an output folder.
 
 Usage (from the repository root):
-    uv run --group experiments python experiments/signal_analysis.py
+    # single CSV with columns Xreal, Ximg, Yreal, Yimg
     uv run --group experiments python experiments/signal_analysis.py \
         --data characterization/data/dadosIniciais.csv \
         --out docs/analysis/dados-iniciais
 
+    # OpenDPD folder (train/val/test files + spec.json), analyzed as one
+    # contiguous record train -> val -> test
+    uv run --group experiments python experiments/signal_analysis.py \
+        --opendpd characterization/data/apa_200mhz \
+        --out docs/analysis/apa-200mhz
+
 The sampling rate of dadosIniciais.csv is unknown, so frequencies are
-normalized (cycles/sample) unless --fs is given.
+normalized (cycles/sample) unless --fs is given. For OpenDPD folders the rate
+is read from spec.json ("input_signal_fs").
 """
 
 import argparse
 import json
+import warnings
 from pathlib import Path
 from typing import Any
 
@@ -33,11 +41,13 @@ from core.analysis.timeseries import (  # noqa: E402
     ljung_box,
     stationarity,
 )
-from core.data import load_iq_csv  # noqa: E402
+from core.data import load_iq_csv, load_opendpd_dataset  # noqa: E402
 
 Results = dict[str, Any]
 
 PERIOD_TOLERANCE = 0.1  # normalized repetition error accepted as "periodic"
+LOW_AMPLITUDE_CUTOFF = 0.1  # bins below this fraction of max |x|: noise-dominated
+LINEAR_REGION_TOP = 0.4  # small-signal gain measured between cutoff and this
 
 
 def save(fig: Any, out: Path, name: str) -> None:
@@ -143,11 +153,22 @@ def analyze_nonlinearity(x: np.ndarray, y: np.ndarray, res: Results, out: Path) 
     """AM/AM, AM/PM and gain compression."""
     amp_in, am_am, am_pm = am_am_am_pm(x, y, n_bins=50)
     gain_db = 20 * np.log10(am_am / amp_in)
-    res["small_signal_gain_db"] = float(gain_db[0])
-    res["gain_max_db"] = float(gain_db.max())
-    res["gain_min_db"] = float(gain_db.min())
-    res["gain_variation_db"] = float(gain_db.max() - gain_db.min())
-    res["am_pm_span_deg"] = float(am_pm.max() - am_pm.min())
+
+    # At very low amplitude the noise dominates |y| and biases the binned gain
+    # upward, so those bins are excluded from the statistics. The small-signal
+    # gain is the median over the linear region (10 % to 40 % of max |x|).
+    peak = amp_in.max()
+    valid = amp_in >= LOW_AMPLITUDE_CUTOFF * peak
+    linear = valid & (amp_in <= LINEAR_REGION_TOP * peak)
+    ref_gain = float(np.median(gain_db[linear]))
+    ref_phase = float(np.median(am_pm[linear]))
+    res["small_signal_gain_db"] = ref_gain
+    res["gain_at_peak_db"] = float(gain_db[-1])
+    res["gain_expansion_db"] = float(gain_db[valid].max() - ref_gain)
+    res["gain_compression_at_peak_db"] = float(ref_gain - gain_db[-1])
+    res["am_pm_span_deg"] = float(am_pm[valid].max() - am_pm[valid].min())
+    res["am_pm_at_peak_deg"] = float(am_pm[-1] - ref_phase)
+    res["low_amplitude_cutoff"] = LOW_AMPLITUDE_CUTOFF
 
     rng = np.random.default_rng(0)
     pick = rng.choice(len(x), size=min(5000, len(x)), replace=False)
@@ -160,7 +181,12 @@ def analyze_nonlinearity(x: np.ndarray, y: np.ndarray, res: Results, out: Path) 
     axes[1].plot(amp_in, am_pm, "k", lw=1.5)
     axes[1].set(xlabel="|x|", ylabel="phase(y) - phase(x) (deg)", title="AM/PM")
     axes[2].plot(amp_in, gain_db, "k")
+    axes[2].axhline(ref_gain, color="gray", ls=":", label="small-signal gain")
+    axes[2].legend()
+    for ax in axes:
+        ax.axvspan(0, LOW_AMPLITUDE_CUTOFF * peak, color="gray", alpha=0.15)
     axes[2].set(xlabel="|x|", ylabel="gain (dB)", title="Gain vs input amplitude")
+    axes[2].set_ylim(gain_db[valid].min() - 0.5, gain_db[valid].max() + 0.5)
     for ax in axes:
         ax.grid(True, alpha=0.3)
     axes[0].legend(markerscale=5)
@@ -201,24 +227,49 @@ def analyze_timeseries(x: np.ndarray, y: np.ndarray, res: Results, out: Path) ->
 
 
 # ---------------------------------------------------------------------------
+def load(args: argparse.Namespace, res: Results) -> tuple[np.ndarray, np.ndarray]:
+    """Load the dataset selected on the command line and record its origin."""
+    if args.opendpd is None:
+        res["dataset"] = str(args.data)
+        res["fs"] = args.fs
+        return load_iq_csv(args.data)
+
+    spec = json.loads((args.opendpd / "spec.json").read_text())
+    splits = load_opendpd_dataset(args.opendpd)
+    res["dataset"] = str(args.opendpd)
+    res["fs"] = args.fs if args.fs is not None else float(spec["input_signal_fs"])
+    res["split_sizes"] = {name: len(x) for name, (x, _) in splits.items()}
+    x = np.concatenate([x for x, _ in splits.values()])
+    y = np.concatenate([y for _, y in splits.values()])
+    return x, y
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument(
+    source = parser.add_mutually_exclusive_group()
+    source.add_argument(
         "--data", type=Path, default=Path("characterization/data/dadosIniciais.csv")
     )
+    source.add_argument("--opendpd", type=Path, default=None, help="OpenDPD folder")
     parser.add_argument(
         "--out", type=Path, default=Path("docs/analysis/dados-iniciais")
     )
     parser.add_argument("--fs", type=float, default=None, help="sampling rate (Hz)")
     args = parser.parse_args()
 
+    # Band-limited, oversampled signals make the ADF lag regressions nearly
+    # collinear; statsmodels then warns on every lag. The p-values are still
+    # reported; the warning is documented in the analysis report.
+    warnings.filterwarnings("ignore", message="The design matrix is rank-deficient")
+
     args.out.mkdir(parents=True, exist_ok=True)
-    x, y = load_iq_csv(args.data)
-    res: Results = {"dataset": str(args.data), "fs": args.fs}
+    res: Results = {}
+    x, y = load(args, res)
+    fs = res["fs"]
 
     analyze_quality(x, y, res)
     analyze_envelope(x, y, res, args.out)
-    analyze_spectrum(x, y, args.fs, res, args.out)
+    analyze_spectrum(x, y, fs, res, args.out)
     analyze_nonlinearity(x, y, res, args.out)
     analyze_timeseries(x, y, res, args.out)
 
