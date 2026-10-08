@@ -6,3 +6,5 @@ nav:
   - Roadmap: ROADMAP.md
   - ADRs:
       - ADR-0001 Polyglot Monorepo: adr/0001-polyglot-monorepo.md
+  - Analysis:
+      - dadosIniciais.csv: analysis/dados-iniciais.md

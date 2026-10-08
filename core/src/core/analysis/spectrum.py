@@ -1,3 +1,5 @@
+"""Spectral analysis: power spectral density and occupied bandwidth."""
+
 import numpy as np
 from scipy import signal
 
@@ -7,7 +9,24 @@ def psd(
     fs: float | None = None,
     nperseg: int = 1024,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Two-sided power spectral density estimated with Welch's method."""
+    """Two-sided power spectral density estimated with Welch's method.
+
+    A complex baseband signal has a non-symmetric spectrum, so both sides
+    are returned (return_onesided=False), ordered from -fs/2 to +fs/2.
+
+    Args:
+        x: Real or complex signal.
+        fs: Sampling rate in Hz. If None, frequencies are normalized
+            (cycles per sample, from -0.5 to 0.5).
+        nperseg: Segment length for Welch's method.
+
+    Returns:
+        (f, pxx): frequencies (ascending) and PSD values (linear, power per
+        unit frequency).
+
+    Raises:
+        ValueError: If x is empty or nperseg is not positive.
+    """
     if x.size == 0:
         raise ValueError("Input signal cannot be empty.")
     if nperseg <= 0:
@@ -27,7 +46,24 @@ def occupied_bandwidth(
     pxx: np.ndarray,
     fraction: float = 0.99,
 ) -> tuple[float, float, float]:
-    """Frequency band that contains a given fraction of the total power."""
+    """Frequency band that contains a given fraction of the total power.
+
+    The band is defined by cutting (1 - fraction) / 2 of the power from each
+    side of the spectrum.
+
+    Args:
+        f: Frequencies in ascending order (as returned by psd).
+        pxx: PSD values at f.
+        fraction: Power fraction inside the band, in (0, 1).
+
+    Returns:
+        (f_low, f_high, bandwidth) with bandwidth = f_high - f_low, in the
+        same unit as f.
+
+    Raises:
+        ValueError: If fraction is not in (0, 1), the shapes differ, the
+            inputs are empty, or the total power is not positive.
+    """
     if not (0.0 < fraction < 1.0):
         raise ValueError(f"fraction must be in (0, 1), got {fraction}.")
     if f.shape != pxx.shape:
