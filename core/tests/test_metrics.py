@@ -85,6 +85,7 @@ def test_r2_worse_than_mean_is_negative(y: np.ndarray) -> None:
     assert r2(y, y_hat) < 0.0
 
 
-def test_r2_zero_variance_signal() -> None:
+def test_r2_zero_variance_raises() -> None:
     y_test = np.ones(10)
-    assert r2(y_test, y_test) == pytest.approx(0.0)
+    with pytest.raises(ValueError, match="zero variance"):
+        r2(y_test, y_test)

@@ -39,7 +39,7 @@ def r2(y: np.ndarray, y_hat: np.ndarray) -> float:
     y_mean = np.mean(y)
     sum_total = np.sum(np.abs(y - y_mean) ** 2)
 
-    if not sum_total:
-        return 0.0
+    if sum_total == 0:
+        raise ValueError("Reference signal y has zero variance.")
 
     return float(1.0 - (sum_error / sum_total))
