@@ -35,11 +35,13 @@
     0.016741071428571428,
     0.024181547619047616
   ],
-  "small_signal_gain_db": 27.499771965431805,
-  "gain_max_db": 27.653645349292624,
-  "gain_min_db": 27.219260577620897,
-  "gain_variation_db": 0.43438477167172707,
+  "small_signal_gain_db": 27.560965040231093,
+  "gain_at_peak_db": 27.262323616576985,
+  "gain_expansion_db": 0.09268030906153157,
+  "gain_compression_at_peak_db": 0.2986414236541073,
   "am_pm_span_deg": 11.178984962288304,
+  "am_pm_at_peak_deg": -10.499414038427348,
+  "low_amplitude_cutoff": 0.1,
   "linear_gain_nmse_db": -25.774516661922885,
   "stationarity": {
     "x_real": {

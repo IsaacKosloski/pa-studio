@@ -2,7 +2,12 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from core.data import load_iq_csv, split_contiguous
+from core.data import (
+    load_iq_csv,
+    load_opendpd_dataset,
+    load_opendpd_split,
+    split_contiguous,
+)
 
 
 def test_load_iq_csv_builds_complex_input_and_output(tmp_path: Path) -> None:
@@ -98,3 +103,34 @@ def test_split_contiguous_blocks_rebuild_the_original_signal() -> None:
 
     np.testing.assert_array_equal(np.concatenate([x_tr, x_va, x_te]), x)
     np.testing.assert_array_equal(np.concatenate([y_tr, y_va, y_te]), y)
+
+
+def _write_opendpd_split(folder: Path, split: str, n: int, offset: float) -> None:
+    rows = "\n".join(f"{offset + i},{-i}" for i in range(n))
+    (folder / f"{split}_input.csv").write_text("I,Q\n" + rows + "\n")
+    rows = "\n".join(f"{2 * (offset + i)},{-2 * i}" for i in range(n))
+    (folder / f"{split}_output.csv").write_text("I,Q\n" + rows + "\n")
+
+
+def test_load_opendpd_dataset_reads_all_splits_in_order(tmp_path: Path) -> None:
+    for split, n, offset in (("train", 6, 0.0), ("val", 2, 6.0), ("test", 2, 8.0)):
+        _write_opendpd_split(tmp_path, split, n, offset)
+
+    data = load_opendpd_dataset(tmp_path)
+
+    assert list(data) == ["train", "val", "test"]
+    x_all = np.concatenate([data[s][0] for s in data])
+    np.testing.assert_allclose(x_all.real, np.arange(10))
+    np.testing.assert_allclose(data["val"][1], 2 * data["val"][0])
+
+
+def test_load_opendpd_split_unknown_split_raises(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="split"):
+        load_opendpd_split(tmp_path, "validation")
+
+
+def test_load_opendpd_split_length_mismatch_raises(tmp_path: Path) -> None:
+    (tmp_path / "train_input.csv").write_text("I,Q\n1,2\n3,4\n5,6\n")
+    (tmp_path / "train_output.csv").write_text("I,Q\n1,2\n3,4\n")
+    with pytest.raises(ValueError, match="differ in length"):
+        load_opendpd_split(tmp_path, "train")

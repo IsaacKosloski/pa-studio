@@ -1,0 +1,79 @@
+{
+  "dataset": "characterization/data/apa_200mhz",
+  "fs": 983040000.0,
+  "split_sizes": {
+    "train": 58980,
+    "val": 19662,
+    "test": 19662
+  },
+  "n_samples": 98304,
+  "has_nan": false,
+  "dc_x_rel_rms": 0.0024835942253487618,
+  "dc_y_rel_rms": 0.00245662923670273,
+  "delay_samples": 0,
+  "period": null,
+  "papr_x_db": 10.010544625499463,
+  "papr_y_db": 8.652833069937282,
+  "obw_0.99_x": {
+    "low": -96960000.0,
+    "high": 96960000.0,
+    "bandwidth": 193920000.0
+  },
+  "obw_0.99_y": {
+    "low": -96960000.0,
+    "high": 96960000.0,
+    "bandwidth": 193920000.0
+  },
+  "obw_0.999_x": {
+    "low": -97920000.0,
+    "high": 97920000.0,
+    "bandwidth": 195840000.0
+  },
+  "obw_0.999_y": {
+    "low": -138240000.0,
+    "high": 134400000.0,
+    "bandwidth": 272640000.0
+  },
+  "main_tones": [
+    -30620000.0,
+    -6020000.0
+  ],
+  "small_signal_gain_db": 1.4166694484232136,
+  "gain_at_peak_db": -0.0303870101772068,
+  "gain_expansion_db": 0.05972147560882468,
+  "gain_compression_at_peak_db": 1.4470564586004204,
+  "am_pm_span_deg": 23.55138545716217,
+  "am_pm_at_peak_deg": -22.106083353804706,
+  "low_amplitude_cutoff": 0.1,
+  "linear_gain_nmse_db": -19.630012429883013,
+  "stationarity": {
+    "x_real": {
+      "adf_pvalue": 4.846245145232874e-30,
+      "kpss_pvalue": 0.1
+    },
+    "x_imag": {
+      "adf_pvalue": 5.42269081567023e-29,
+      "kpss_pvalue": 0.1
+    },
+    "x_abs": {
+      "adf_pvalue": 0.0,
+      "kpss_pvalue": 0.1
+    },
+    "r_real": {
+      "adf_pvalue": 0.0,
+      "kpss_pvalue": 0.1
+    }
+  },
+  "ljung_box_r_real": {
+    "5": 0.0,
+    "10": 0.0,
+    "20": 0.0
+  },
+  "acf_r_real_lag1_to_5": [
+    0.8686284978944702,
+    0.589356788721165,
+    0.3144669655438013,
+    0.11614063614235266,
+    -0.015504411417033492
+  ]
+}
